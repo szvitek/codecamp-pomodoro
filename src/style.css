@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 body {
-  @apply bg-teal-800 text-white;
+  @apply bg-teal-800 text-sm text-white sm:text-lg md:text-4xl;
 }
 
 #app {
-  @apply flex h-screen items-center justify-center text-3xl text-center;
+  @apply flex h-screen items-center justify-center text-center;
 }
