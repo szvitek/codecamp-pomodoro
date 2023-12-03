@@ -24,13 +24,15 @@ function onResetClick() {
   <div class="timer-control">
     <button
       id="start_stop"
+      class="hover:text-white"
       @click="onStartClicked"
       :class="{ active: isRunning }"
     >
       <font-awesome-icon
         id="start"
         :icon="['fas', 'play']"
-        :class="[!isRunning ? 'opacity-100' : 'opacity-50']"
+        class="hover:text-green-500"
+        :class="[!isRunning ? 'opacity-100' : 'opacity-50 hover:text-inherit']"
         :beat="buttonClicks.start"
           :style="[
             '--fa-animation-iteration-count: 1',
@@ -41,7 +43,8 @@ function onResetClick() {
       <font-awesome-icon
         id="stop"
         :icon="['fas', 'pause']"
-        :class="[isRunning ? 'opacity-100' : 'opacity-50']"
+        class="hover:text-green-500"
+        :class="[isRunning ? 'opacity-100' : 'opacity-50 hover:text-inherit']"
         :beat="buttonClicks.start"
           :style="[
             '--fa-animation-iteration-count: 1',

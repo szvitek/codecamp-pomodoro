@@ -40,6 +40,7 @@ function onIncrease() {
           :style="[
             '--fa-animation-iteration-count: 1',
             '--fa-animation-duration: 0.5s',
+            '--fa-beat-scale: 0.5',
           ]"
           @animationend="buttonClicks.decrease = false"
         />
