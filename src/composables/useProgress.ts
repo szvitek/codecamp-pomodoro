@@ -1,4 +1,4 @@
-import { Ref, computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 type useProgressProps = {
   newMax?: number;
