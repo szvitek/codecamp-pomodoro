@@ -9,7 +9,6 @@ export function useProgress({
   newMax = 100,
   newRemaining = 0,
 }: useProgressProps) {
-  console.log(newMax, newRemaining);
   const max = ref(newMax);
   const remaining = ref(newRemaining);
 
