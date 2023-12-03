@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { onUnmounted, reactive, ref, watch } from "vue";
 import Beep from "../assets/audio/BeepSound.wav";
-
-type Mode = "session" | "break";
+import Control from "./Control.vue";
+import ProgressBar from "./ProgressBar.vue";
+import { useProgress } from "../composables/useProgress";
+import TimerControl from "./TimerControl.vue";
+import Display from "./Display.vue";
 
 const interval = ref<number>();
 const mode = ref<Mode>("session");
@@ -38,6 +41,20 @@ const remainingTime = reactive({
     seconds: 0,
   },
 });
+
+// composable might be overkill here but I wanted to practice how to make/use them
+const { max, remaining, color, progress } = useProgress({
+  newMax: timer[mode.value] * 60,
+  newRemaining: remainingTime[mode.value].total,
+});
+
+watch(
+  [() => timer[mode.value] * 60, () => remainingTime[mode.value].total],
+  ([newMax, newRemaining]) => {
+    max.value = newMax;
+    remaining.value = newRemaining;
+  },
+);
 
 function handleReset() {
   if (interval.value) {
@@ -126,102 +143,39 @@ onUnmounted(() => {
 
 <template>
   <div class="timer flex flex-grow flex-col items-center justify-center">
+    <ProgressBar :progress="progress" :color="color" />
     <div class="controls flex flex-col items-center justify-center md:flex-row">
-      <div class="mx-5">
-        <div id="break-label">
-          <p>Break Length</p>
-        </div>
-        <div class="flex items-center justify-center">
-          <button
-            id="break-decrement"
-            @click="timer.break > 1 && timer.break--"
-            :disabled="isRunning"
-            :class="{
-              'cursor-not-allowed': isRunning,
-              'opacity-50': isRunning,
-            }"
-          >
-            <font-awesome-icon :icon="['fas', 'arrow-down']" />
-          </button>
-          <div id="break-length">{{ timer.break }}</div>
-          <button
-            id="break-increment"
-            @click="timer.break < 60 && timer.break++"
-            :disabled="isRunning"
-            :class="{
-              'cursor-not-allowed': isRunning,
-              'opacity-50': isRunning,
-            }"
-          >
-            <font-awesome-icon :icon="['fas', 'arrow-up']" />
-          </button>
-        </div>
-      </div>
-      <div class="mx-5">
-        <div id="session-label">
-          <p>Session Length</p>
-        </div>
-        <div class="flex flex-grow items-center justify-center">
-          <button
-            id="session-decrement"
-            @click="timer.session > 1 && timer.session--"
-            :disabled="isRunning"
-            :class="{
-              'cursor-not-allowed': isRunning,
-              'opacity-50': isRunning,
-            }"
-          >
-            <font-awesome-icon :icon="['fas', 'arrow-down']" />
-          </button>
-          <div id="session-length">{{ timer.session }}</div>
-          <button
-            id="session-increment"
-            @click="timer.session < 60 && timer.session++"
-            :disabled="isRunning"
-            :class="{
-              'cursor-not-allowed': isRunning,
-              'opacity-50': isRunning,
-            }"
-          >
-            <font-awesome-icon :icon="['fas', 'arrow-up']" />
-          </button>
-        </div>
-      </div>
+      <Control
+        mode="break"
+        :is-running="isRunning"
+        :value="timer.break"
+        @on-decrement="timer.break > 1 && timer.break--"
+        @on-increment="timer.break < 60 && timer.break++"
+      />
+      <Control
+        mode="session"
+        :is-running="isRunning"
+        :value="timer.session"
+        @on-decrement="timer.session > 1 && timer.session--"
+        @on-increment="timer.session < 60 && timer.session++"
+      />
     </div>
-    <div class="rounded-3xl border-4 border-green-950 p-6">
-      <div class="text-2xl capitalize" id="timer-label">{{ mode }}</div>
-      <div class="mx-5 mt-6 text-6xl md:mx-12" id="time-left">
-        {{ remainingTime[mode].minutes.toString().padStart(2, "0") }}:{{
-          remainingTime[mode].seconds.toString().padStart(2, "0")
-        }}
-      </div>
-    </div>
-    <div class="timer-control">
-      <button
-        id="start_stop"
-        @click="handleStartStop()"
-        :class="{ active: isRunning }"
-      >
-        <font-awesome-icon
-          id="start"
-          :icon="['fas', 'play']"
-          :class="[!isRunning ? 'opacity-100' : 'opacity-50']"
-        />
-        <font-awesome-icon
-          id="stop"
-          :icon="['fas', 'pause']"
-          :class="[isRunning ? 'opacity-100' : 'opacity-50']"
-        />
-      </button>
-      <button id="reset" @click="handleReset">
-        <font-awesome-icon :icon="['fas', 'arrows-rotate']" />
-      </button>
-    </div>
+    <Display
+      :label="mode"
+      :color="color"
+      :minutes="remainingTime[mode].minutes"
+      :seconds="remainingTime[mode].seconds"
+    />
+    <TimerControl
+      @on-start-stop="handleStartStop"
+      @on-reset="handleReset()"
+      :is-running="isRunning"
+    />
     <audio id="beep" :src="Beep" ref="audio" />
   </div>
 </template>
 
-<style scoped>
+<style>
 .timer {
   @apply md:min-w-[500px];
 }

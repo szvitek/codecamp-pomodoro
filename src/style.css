@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-teal-800 text-sm text-white sm:text-lg md:text-4xl;
+  @apply bg-teal-800 text-lg text-white sm:text-2xl md:text-4xl;
 }
 
 #app {
